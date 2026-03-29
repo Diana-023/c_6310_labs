@@ -72,25 +72,25 @@
 - **Текст предупреждения:** `warning: comparison of unsigned expression >= 0 is always true [-Wtype-limits]`
 - **Объяснение:** Для беззнакового типа unsigned int условие >= 0 всегда истинно, так как беззнаковые числа не могут быть отрицательными. Эта проверка бессмысленна.
 
-2. Переменная присваивается, но не используется (unused-but-set-variable)
+### 2. Переменная присваивается, но не используется (unused-but-set-variable)
 - **Строка:** 92
 - **Код:** `int temp_var = 10; temp_var = 20;`
 - **Текст предупреждения:** `warning: variable 'temp_var' set but not used [-Wunused-but-set-variable]`
 - **Объяснение:** Переменной temp_var присваиваются значения, но после этого она нигде не используется. Компилятор предупреждает о лишних операциях, которые можно удалить.
 
-3. Переполнение при присваивании (overflow)
+### 3. Переполнение при присваивании (overflow)
 - **Строка:** 97
 - **Код:** `char overflow_char = 300;`
 - **Текст предупреждения:** `warning: overflow in conversion from 'int' to 'char' changes value from '300' to '44' [-Woverflow]`
 - **Объяснение:** Значение 300 выходит за пределы диапазона типа char (обычно -128..127 или 0..255). Произойдет усечение значения, что приведет к потере данных и неожиданному результату.
 
-4. Переполнение при сдвиге (shift-count-overflow)
+### 4. Переполнение при сдвиге (shift-count-overflow)
 - **Строка:** 101
 - **Код:** `int shift_overflow = 1 << 40;`
 - **Текст предупреждения:** `warning: left shift count >= width of type [-Wshift-count-overflow]`
 - **Объяснение:** Попытка сдвинуть число на 40 бит, в то время как тип int на большинстве платформ занимает 32 бита. Результат такого сдвига не определен стандартом C и поведение программы становится непредсказуемым.
 
-5. Возможно использование неинициализированной переменной (maybe-uninitialized)
+### 5. Возможно использование неинициализированной переменной (maybe-uninitialized)
 - **Строка:** 106-108
 - **Код:** `int maybe_uninit; if (n > 100) { maybe_uninit = 42; } printf("maybe_uninit = %d\n", maybe_uninit);`
 - **Текст предупреждения:** `warning: 'maybe_uninit' may be used uninitialized in this function [-Wmaybe-uninitialized]`
