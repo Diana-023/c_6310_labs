@@ -1,5 +1,4 @@
 #include "libft.h"
-#include <stdio.h>
 #include <string.h>
 
 void *to_upper_wrapper(void *content)
@@ -32,7 +31,11 @@ void del_content(void *content)
 void print_content(void *content)
 {
     if (content)
-        printf("\"%s\" ", (char *)content);
+    {
+        ft_putstr_fd("\"", 1);
+        ft_putstr_fd((char *)content, 1);
+        ft_putstr_fd("\" ", 1);
+    }
 }
 
 char to_upper_char(unsigned int i, char c)
@@ -45,7 +48,7 @@ char to_upper_char(unsigned int i, char c)
 
 void test_list_functions(void)
 {
-    printf("\n=== TEST: List Functions ===\n");
+    ft_putendl_fd("\n=== TEST: List Functions ===", 1);
     
     t_list *list = NULL;
     
@@ -53,116 +56,204 @@ void test_list_functions(void)
     ft_lstadd_front(&list, ft_lstnew(ft_strdup("Second")));
     ft_lstadd_front(&list, ft_lstnew(ft_strdup("Third")));
     
-    printf("List after add_front: ");
+    ft_putstr_fd("List after add_front: ", 1);
     ft_lstiter(list, print_content);
-    printf("\n");
+    ft_putchar_fd('\n', 1);
     
-    printf("List size: %d\n", ft_lstsize(list));
-    printf("Last element: \"%s\"\n", (char *)ft_lstlast(list)->content);
+    ft_putstr_fd("List size: ", 1);
+    ft_putnbr_fd(ft_lstsize(list), 1);
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("Last element: \"", 1);
+    ft_putstr_fd((char *)ft_lstlast(list)->content, 1);
+    ft_putstr_fd("\"\n", 1);
     
     ft_lstadd_back(&list, ft_lstnew(ft_strdup("Fourth")));
-    printf("After adding 'Fourth' to back: ");
+    ft_putstr_fd("After adding 'Fourth' to back: ", 1);
     ft_lstiter(list, print_content);
-    printf("\n");
-    printf("New size: %d\n", ft_lstsize(list));
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("New size: ", 1);
+    ft_putnbr_fd(ft_lstsize(list), 1);
+    ft_putchar_fd('\n', 1);
     
     t_list *upper_list = ft_lstmap(list, to_upper_wrapper, del_content);
-    printf("New list (UPPERCASE): ");
+    ft_putstr_fd("New list (UPPERCASE): ", 1);
     ft_lstiter(upper_list, print_content);
-    printf("\n");
+    ft_putchar_fd('\n', 1);
     
     ft_lstclear(&list, del_content);
     ft_lstclear(&upper_list, del_content);
-    printf("Lists cleared\n");
+    ft_putendl_fd("Lists cleared", 1);
 }
 
 void test_all_functions(void)
 {
-    printf("=== FULL LIBFT TEST ===\n\n");
+    ft_putendl_fd("=== FULL LIBFT TEST ===", 1);
+    ft_putchar_fd('\n', 1);
     
     // 1. Character checks
-    printf("1. Character checks:\n");
-    printf("   ft_isalpha('A'): %d\n", ft_isalpha('A'));
-    printf("   ft_isdigit('5'): %d\n", ft_isdigit('5'));
-    printf("   ft_isalnum('Z'): %d\n", ft_isalnum('Z'));
-    printf("   ft_isascii(65): %d\n", ft_isascii(65));
-    printf("   ft_isprint(' '): %d\n", ft_isprint(' '));
-    printf("   ft_toupper('z'): '%c'\n", ft_toupper('z'));
-    printf("   ft_tolower('Q'): '%c'\n", ft_tolower('Q'));
-    printf("   ft_isspace('\\t'): %d\n", ft_isspace('\t'));
+    ft_putendl_fd("1. Character checks:", 1);
+    
+    ft_putstr_fd("   ft_isalpha('A'): ", 1);
+    ft_putnbr_fd(ft_isalpha('A'), 1);
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("   ft_isdigit('5'): ", 1);
+    ft_putnbr_fd(ft_isdigit('5'), 1);
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("   ft_isalnum('Z'): ", 1);
+    ft_putnbr_fd(ft_isalnum('Z'), 1);
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("   ft_isascii(65): ", 1);
+    ft_putnbr_fd(ft_isascii(65), 1);
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("   ft_isprint(' '): ", 1);
+    ft_putnbr_fd(ft_isprint(' '), 1);
+    ft_putchar_fd('\n', 1);
+    
+    ft_putstr_fd("   ft_toupper('z'): '", 1);
+    ft_putchar_fd(ft_toupper('z'), 1);
+    ft_putstr_fd("'\n", 1);
+    
+    ft_putstr_fd("   ft_tolower('Q'): '", 1);
+    ft_putchar_fd(ft_tolower('Q'), 1);
+    ft_putstr_fd("'\n", 1);
+    
+    ft_putstr_fd("   ft_isspace('\\t'): ", 1);
+    ft_putnbr_fd(ft_isspace('\t'), 1);
+    ft_putchar_fd('\n', 1);
     
     // 2. String length
-    printf("\n2. ft_strlen(\"Hello\"): %zu\n", ft_strlen("Hello"));
+    ft_putchar_fd('\n', 1);
+    ft_putstr_fd("2. ft_strlen(\"Hello\"): ", 1);
+    ft_putnbr_fd(ft_strlen("Hello"), 1);
+    ft_putchar_fd('\n', 1);
     
     // 3. Copy and concat
     char dest[20];
-    printf("\n3. ft_strlcpy: %zu -> \"%s\"\n", ft_strlcpy(dest, "Hi", 3), dest);
-    printf("   ft_strlcat: %zu -> \"%s\"\n", ft_strlcat(dest, " World", 20), dest);
+    size_t len1 = ft_strlcpy(dest, "Hi", 3);
+    ft_putchar_fd('\n', 1);
+    ft_putstr_fd("3. ft_strlcpy: ", 1);
+    ft_putnbr_fd(len1, 1);
+    ft_putstr_fd(" -> \"", 1);
+    ft_putstr_fd(dest, 1);
+    ft_putstr_fd("\"\n", 1);
+    
+    size_t len2 = ft_strlcat(dest, " World", 20);
+    ft_putstr_fd("   ft_strlcat: ", 1);
+    ft_putnbr_fd(len2, 1);
+    ft_putstr_fd(" -> \"", 1);
+    ft_putstr_fd(dest, 1);
+    ft_putstr_fd("\"\n", 1);
     
     // 4. Search in string
-    printf("\n4. ft_strchr(\"Hello\", 'l'): \"%s\"\n", ft_strchr("Hello", 'l'));
-    printf("   ft_strrchr(\"Hello\", 'l'): \"%s\"\n", ft_strrchr("Hello", 'l'));
-    printf("   ft_strnstr(\"Hello World\", \"World\", 11): \"%s\"\n", ft_strnstr("Hello World", "World", 11));
-    printf("   ft_strncmp(\"Hello\", \"Helix\", 3): %d\n", ft_strncmp("Hello", "Helix", 3));
+    ft_putchar_fd('\n', 1);
+    ft_putstr_fd("4. ft_strchr(\"Hello\", 'l'): \"", 1);
+    ft_putstr_fd(ft_strchr("Hello", 'l'), 1);
+    ft_putstr_fd("\"\n", 1);
+    
+    ft_putstr_fd("   ft_strrchr(\"Hello\", 'l'): \"", 1);
+    ft_putstr_fd(ft_strrchr("Hello", 'l'), 1);
+    ft_putstr_fd("\"\n", 1);
+    
+    ft_putstr_fd("   ft_strnstr(\"Hello World\", \"World\", 11): \"", 1);
+    ft_putstr_fd(ft_strnstr("Hello World", "World", 11), 1);
+    ft_putstr_fd("\"\n", 1);
+    
+    ft_putstr_fd("   ft_strncmp(\"Hello\", \"Helix\", 3): ", 1);
+    ft_putnbr_fd(ft_strncmp("Hello", "Helix", 3), 1);
+    ft_putchar_fd('\n', 1);
     
     // 5. Conversions
-    printf("\n5. ft_atoi(\"   -123\"): %d\n", ft_atoi("   -123"));
+    ft_putchar_fd('\n', 1);
+    ft_putstr_fd("5. ft_atoi(\"   -123\"): ", 1);
+    ft_putnbr_fd(ft_atoi("   -123"), 1);
+    ft_putchar_fd('\n', 1);
+    
     char *itoa_result = ft_itoa(-456);
-    printf("   ft_itoa(-456): \"%s\"\n", itoa_result);
+    ft_putstr_fd("   ft_itoa(-456): \"", 1);
+    ft_putstr_fd(itoa_result, 1);
+    ft_putstr_fd("\"\n", 1);
     free(itoa_result);
     
     // 6. Memory functions
-    printf("\n6. ft_calloc: ");
+    ft_putchar_fd('\n', 1);
+    ft_putstr_fd("6. ft_calloc: ", 1);
     int *arr = (int *)ft_calloc(5, sizeof(int));
-    printf("%d %d %d %d %d\n", arr[0], arr[1], arr[2], arr[3], arr[4]);
+    for (int i = 0; i < 5; i++)
+    {
+        ft_putnbr_fd(arr[i], 1);
+        if (i < 4)
+            ft_putchar_fd(' ', 1);
+    }
+    ft_putchar_fd('\n', 1);
     free(arr);
     
     char *dup = ft_strdup("Duplicate me");
-    printf("   ft_strdup: \"%s\"\n", dup);
+    ft_putstr_fd("   ft_strdup: \"", 1);
+    ft_putstr_fd(dup, 1);
+    ft_putstr_fd("\"\n", 1);
     free(dup);
     
     // 7. String functions
+    ft_putchar_fd('\n', 1);
     char *sub = ft_substr("Hello World", 6, 5);
-    printf("\n7. ft_substr(\"Hello World\", 6, 5): \"%s\"\n", sub);
+    ft_putstr_fd("7. ft_substr(\"Hello World\", 6, 5): \"", 1);
+    ft_putstr_fd(sub, 1);
+    ft_putstr_fd("\"\n", 1);
     free(sub);
     
     char *join = ft_strjoin("Hello ", "World");
-    printf("   ft_strjoin(\"Hello \", \"World\"): \"%s\"\n", join);
+    ft_putstr_fd("   ft_strjoin(\"Hello \", \"World\"): \"", 1);
+    ft_putstr_fd(join, 1);
+    ft_putstr_fd("\"\n", 1);
     free(join);
     
     char *trim = ft_strtrim("   Hello   ", " ");
-    printf("   ft_strtrim(\"   Hello   \", \" \"): \"%s\"\n", trim);
+    ft_putstr_fd("   ft_strtrim(\"   Hello   \", \" \"): \"", 1);
+    ft_putstr_fd(trim, 1);
+    ft_putstr_fd("\"\n", 1);
     free(trim);
     
     char **split = ft_split("Hello World from 42", ' ');
-    printf("   ft_split: [");
+    ft_putstr_fd("   ft_split: [", 1);
     for (int i = 0; split[i]; i++)
     {
-        printf("\"%s\"", split[i]);
+        ft_putstr_fd("\"", 1);
+        ft_putstr_fd(split[i], 1);
+        ft_putstr_fd("\"", 1);
         if (split[i + 1])
-            printf(", ");
+            ft_putstr_fd(", ", 1);
         free(split[i]);
     }
-    printf("]\n");
+    ft_putstr_fd("]\n", 1);
     free(split);
     
     char *mapped = ft_strmapi("hello", to_upper_char);
-    printf("   ft_strmapi(\"hello\", to_upper): \"%s\"\n", mapped);
+    ft_putstr_fd("   ft_strmapi(\"hello\", to_upper): \"", 1);
+    ft_putstr_fd(mapped, 1);
+    ft_putstr_fd("\"\n", 1);
     free(mapped);
     
     // 8. Output functions
-    printf("\n8. Output functions (check output):\n");
-    printf("   ft_putstr_fd: ");
+    ft_putchar_fd('\n', 1);
+    ft_putendl_fd("8. Output functions (check output):", 1);
+    ft_putstr_fd("   ft_putstr_fd: ", 1);
     ft_putstr_fd("Test output", 1);
     ft_putchar_fd('\n', 1);
-    printf("   ft_putnbr_fd: ");
+    ft_putstr_fd("   ft_putnbr_fd: ", 1);
     ft_putnbr_fd(12345, 1);
     ft_putchar_fd('\n', 1);
     
     // 9. Lists
     test_list_functions();
     
-    printf("\n=== ALL TESTS PASSED ===\n");
+    ft_putchar_fd('\n', 1);
+    ft_putendl_fd("=== ALL TESTS PASSED ===", 1);
 }
 
 int main(void)
