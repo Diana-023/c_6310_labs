@@ -2,128 +2,142 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 4096
-
-static char	*read_whole_file(int fd)
+static int	count_lines(int fd)
 {
-	char	*buffer;
-	char	*content;
-	char	*temp;
+	char	buffer[1024];
 	int		bytes_read;
+	int		line_count;
+	int		i;
+	int		has_content;
 
-	content = ft_strdup("");
-	if (!content)
-		return (NULL);
-	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buffer)
-	{
-		free(content);
-		return (NULL);
-	}
+	line_count = 0;
+	has_content = 0;
 	while (1)
 	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		bytes_read = read(fd, buffer, 1024);
 		if (bytes_read <= 0)
 			break ;
-		buffer[bytes_read] = '\0';
-		temp = ft_strjoin(content, buffer);
-		free(content);
-		if (!temp)
+		has_content = 1;
+		i = 0;
+		while (i < bytes_read)
 		{
-			free(buffer);
-			return (NULL);
+			if (buffer[i] == '\n')
+				line_count++;
+			i++;
 		}
-		content = temp;
 	}
-	free(buffer);
-	if (ft_strlen(content) == 0)
-	{
-		free(content);
-		return (NULL);
-	}
-	return (content);
+	// Если файл не пустой и не заканчивается на \n, добавляем последнюю строку
+	if (has_content && line_count == 0)
+		return (1);
+	// Если последний символ не \n, добавляем 1
+	// Для этого нужно проверить последний байт файла
+	return (line_count);
 }
 
-static int	count_lines_in_content(const char *content)
+static int	file_ends_with_newline(int fd)
 {
-	int	count;
-	int	i;
+	char	last_char;
+	int		bytes_read;
+	int		offset;
 
-	if (!content || !*content)
-		return (0);
-	count = 0;
-	i = 0;
-	while (content[i])
+	// Сохраняем текущую позицию
+	offset = lseek(fd, 0, SEEK_CUR);
+	// Идем к концу файла
+	if (lseek(fd, -1, SEEK_END) < 0)
 	{
-		if (content[i] == '\n')
-			count++;
-		i++;
+		lseek(fd, offset, SEEK_SET);
+		return (1); // Предполагаем, что заканчивается на \n при ошибке
 	}
-	/* Если последний символ не \n, добавляем ещё одну строку */
-	if (content[i - 1] != '\n')
-		count++;
-	return (count);
+	bytes_read = read(fd, &last_char, 1);
+	lseek(fd, offset, SEEK_SET);
+	if (bytes_read != 1)
+		return (1);
+	return (last_char == '\n');
 }
 
-static char	**split_content_to_lines(const char *content, int line_count)
+static char	*read_line(int fd)
 {
-	char	**lines;
-	int		i;
-	int		start;
-	int		line_idx;
+	char	*line;
+	char	ch;
+	int		len;
+	char	*new_line;
 
-	lines = (char **)malloc(sizeof(char *) * (line_count + 1));
-	if (!lines)
-		return (NULL);
-	i = 0;
-	line_idx = 0;
-	while (line_idx < line_count && content[i])
+	line = NULL;
+	len = 0;
+	while (read(fd, &ch, 1) > 0)
 	{
-		start = i;
-		while (content[i] && content[i] != '\n')
-			i++;
-		lines[line_idx] = ft_substr(content, start, i - start);
-		if (!lines[line_idx])
+		if (ch == '\n')
+			break ;
+		new_line = (char *)malloc(len + 2);
+		if (!new_line)
 		{
-			while (--line_idx >= 0)
-				free(lines[line_idx]);
-			free(lines);
+			free(line);
 			return (NULL);
 		}
-		if (content[i] == '\n')
-			i++;
-		line_idx++;
+		if (line)
+		{
+			ft_memcpy(new_line, line, len);
+			free(line);
+		}
+		line = new_line;
+		line[len++] = ch;
 	}
-	lines[line_count] = NULL;
-	return (lines);
+	// Если достигли конца файла и есть прочитанные символы
+	if (len > 0)
+	{
+		if (!line)
+			line = (char *)malloc(1);
+		if (line)
+			line[len] = '\0';
+		return (line);
+	}
+	free(line);
+	return (NULL);
 }
 
 char	**read_file(const char *filename)
 {
 	int		fd;
-	char	*content;
 	char	**lines;
+	int		i;
 	int		line_count;
+	int		ends_with_nl;
 
 	if (!filename)
 		return (NULL);
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return (NULL);
-	content = read_whole_file(fd);
+	line_count = count_lines(fd);
+	ends_with_nl = file_ends_with_newline(fd);
+	// Если файл не заканчивается на \n, добавляем строку
+	if (!ends_with_nl && line_count > 0)
+		line_count++;
 	close(fd);
-	if (!content)
+	
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
 		return (NULL);
-	line_count = count_lines_in_content(content);
-	if (line_count == 0)
+	
+	lines = (char **)ft_calloc(line_count + 1, sizeof(char *));
+	if (!lines)
 	{
-		free(content);
-		lines = (char **)malloc(sizeof(char *));
-		if (lines)
-			lines[0] = NULL;
-		return (lines);
+		close(fd);
+		return (NULL);
 	}
-	lines = split_content_to_lines(content, line_count);
-	free(content);
+	
+	i = 0;
+	while (i < line_count)
+	{
+		lines[i] = read_line(fd);
+		if (!lines[i])
+		{
+			free_lines(lines);
+			close(fd);
+			return (NULL);
+		}
+		i++;
+	}
+	close(fd);
 	return (lines);
 }

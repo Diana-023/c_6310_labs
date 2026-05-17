@@ -1,6 +1,10 @@
-NAME = txtfile
+NAME = replace_file
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -I./inc
+CFLAGS = -Wall -Wextra -Werror
+INCLUDES = -I./inc
+
+LIBFT_DIR = ./libft
+LIBFT = $(LIBFT_DIR)/libft.a
 
 SRC_DIR = src
 SRCS = $(SRC_DIR)/main.c \
@@ -9,27 +13,28 @@ SRCS = $(SRC_DIR)/main.c \
        $(SRC_DIR)/print_lines.c \
        $(SRC_DIR)/replace_substr.c
 
-OBJ_DIR = obj
-OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.c=.o)))
+OBJS = $(SRCS:.c=.o)
 
-LIBFT = libft.a
+all: $(LIBFT) $(NAME)
 
-all: $(NAME)
+# Собираем старую библиотеку libft
+$(LIBFT):
+	make -C $(LIBFT_DIR)
 
-$(NAME): $(OBJ_DIR) $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) -L. -lft -o $(NAME)
+# Собираем нашу программу
+$(NAME): $(OBJS) $(LIBFT)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -f $(OBJS)
+	make -C $(LIBFT_DIR) clean
 
 fclean: clean
 	rm -f $(NAME)
+	make -C $(LIBFT_DIR) fclean
 
 re: fclean all
 

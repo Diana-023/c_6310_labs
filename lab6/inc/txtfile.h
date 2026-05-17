@@ -2,6 +2,8 @@
 # define TXTFILE_H
 
 # include "libft.h"
+# include <fcntl.h>
+# include <unistd.h>
 
 /* Обязательные функции */
 char	**read_file(const char *filename);

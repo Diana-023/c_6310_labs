@@ -1,94 +1,83 @@
 #include "txtfile.h"
 
-static int	count_occurrences(const char *str, const char *sub)
-{
-	int	count;
-	int	sub_len;
-	int	i;
-
-	if (!str || !sub || !*sub)
-		return (0);
-	count = 0;
-	sub_len = ft_strlen(sub);
-	i = 0;
-	while (str[i])
-	{
-		if (ft_strncmp(str + i, sub, sub_len) == 0)
-		{
-			count++;
-			i += sub_len;
-		}
-		else
-			i++;
-	}
-	return (count);
-}
-
 static char	*replace_in_string(const char *str, const char *old, const char *new_str)
 {
 	char	*result;
-	int		occ;
+	char	*pos;
+	char	*temp;
 	int		old_len;
 	int		new_len;
-	int		i;
-	int		j;
+	int		count;
+	char	*find_pos;
 
-	occ = count_occurrences(str, old);
-	if (occ == 0)
-		return (ft_strdup(str));
+	if (!str || !old || !new_str)
+		return (NULL);
 	old_len = ft_strlen(old);
 	new_len = ft_strlen(new_str);
-	result = (char *)malloc(sizeof(char) * (ft_strlen(str) + occ * (new_len - old_len) + 1));
+	if (old_len == 0)
+		return (ft_strdup(str));
+	// Подсчитываем количество вхождений
+	count = 0;
+	pos = (char *)str;
+	while (1)
+	{
+		find_pos = ft_strnstr(pos, old, ft_strlen(pos));
+		if (!find_pos)
+			break ;
+		count++;
+		pos = find_pos + old_len;
+	}
+	// Выделяем память под результат
+	result = (char *)malloc(ft_strlen(str) + count * (new_len - old_len) + 1);
 	if (!result)
 		return (NULL);
-	i = 0;
-	j = 0;
-	while (str[i])
+	// Выполняем замену
+	pos = (char *)str;
+	temp = result;
+	while (*pos)
 	{
-		if (ft_strncmp(str + i, old, old_len) == 0)
+		find_pos = ft_strnstr(pos, old, ft_strlen(pos));
+		if (find_pos == pos)
 		{
-			ft_memcpy(result + j, new_str, new_len);
-			j += new_len;
-			i += old_len;
+			ft_memcpy(temp, new_str, new_len);
+			temp += new_len;
+			pos += old_len;
 		}
 		else
 		{
-			result[j] = str[i];
-			j++;
-			i++;
+			*temp = *pos;
+			temp++;
+			pos++;
 		}
 	}
-	result[j] = '\0';
+	*temp = '\0';
 	return (result);
 }
 
 char	**replace_substr(char **lines, const char *old, const char *new_str)
 {
 	char	**new_lines;
-	int		line_count;
 	int		i;
+	int		count;
 
 	if (!lines || !old || !new_str)
 		return (NULL);
-	line_count = 0;
-	while (lines[line_count])
-		line_count++;
-	new_lines = (char **)malloc(sizeof(char *) * (line_count + 1));
+	count = 0;
+	while (lines[count])
+		count++;
+	new_lines = (char **)ft_calloc(count + 1, sizeof(char *));
 	if (!new_lines)
 		return (NULL);
 	i = 0;
-	while (i < line_count)
+	while (lines[i])
 	{
 		new_lines[i] = replace_in_string(lines[i], old, new_str);
 		if (!new_lines[i])
 		{
-			while (--i >= 0)
-				free(new_lines[i]);
-			free(new_lines);
+			free_lines(new_lines);
 			return (NULL);
 		}
 		i++;
 	}
-	new_lines[i] = NULL;
 	return (new_lines);
 }
